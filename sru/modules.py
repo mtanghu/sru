@@ -968,6 +968,7 @@ class SRUpp(nn.Module):
                  rescale: bool = False,
                  nn_rnn_compatible_return: bool = False,
                  proj_input_to_hidden_first: bool = False,
+                 amp_recurrence_fp16: bool = True,
                  weight_c_init: float = 1.0):
         """Initialize the SRU++ module.
 
@@ -1077,6 +1078,7 @@ class SRUpp(nn.Module):
                 rescale=rescale,
                 transform_module=custom_m,
                 weight_c_init=weight_c_init,
+                amp_recurrence_fp16=amp_recurrence_fp16,
             )
             self.rnn_lst.append(layer)
 
