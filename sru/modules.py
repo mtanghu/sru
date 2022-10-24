@@ -13,6 +13,8 @@ from sru.ops import (elementwise_recurrence_inference,
                      elementwise_recurrence_gpu,
                      elementwise_recurrence_naive)
 
+from rotary_embedding_torch import RotaryEmbedding
+
 
 class SRUCell(nn.Module):
     """
@@ -756,6 +758,8 @@ class SRUppAttention(nn.Module):
                 proj_features, num_heads
             ))
         self.reset_parameters()
+        
+        self.rotary_emb = RotaryEmbedding(dim = 32)
 
     def reset_parameters(self):
         nn.init.xavier_uniform_(self.linear1.weight)
@@ -819,6 +823,9 @@ class SRUppAttention(nn.Module):
         q = q.contiguous().view(tgt_len, -1, head_dim).transpose(0, 1)
         k = k.contiguous().view(src_len, -1, head_dim).transpose(0, 1)
         v = v.contiguous().view(src_len, -1, head_dim).transpose(0, 1)
+
+        q = self.rotary_emb.rotate_queries_or_keys(q)
+        k = self.rotary_emb.rotate_queries_or_keys(k)
 
         # (bsz * num_heads, tgt_len, src_len)
         q = q * scaling
