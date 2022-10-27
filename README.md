@@ -1,4 +1,9 @@
 
+## News
+SRU++, a new SRU variant, is released. [[tech report](https://arxiv.org/pdf/2102.12459.pdf)] [[blog](https://www.asapp.com/blog/reducing-the-high-cost-of-training-nlp-models-with-sru/)]
+
+The experimental code and SRU++ implementation are available on [the dev branch](https://github.com/asappresearch/sru/tree/3.0.0-dev/experiments/srupp_experiments) which will be merged into master later.
+
 ## About
 
 **SRU** is a recurrent unit that can run over 10 times faster than cuDNN LSTM, without loss of accuracy tested on many tasks. 
@@ -31,7 +36,7 @@ When Attention Meets Fast Recurrence: Training Language Models with Reduced Comp
 <br>
 
 ## Requirements
- - [PyTorch](http://pytorch.org/) 1.6 or 1.7 recommended, [pytorch installation details](docs/pytorch_installation.md)
+ - [PyTorch](http://pytorch.org/) >=1.6 recommended
  - [ninja](https://ninja-build.org/)
 
 Install requirements via `pip install -r requirements.txt`.
@@ -72,8 +77,7 @@ rnn = SRU(input_size, hidden_size,
     dropout = 0.0,           # dropout applied between RNN layers
     bidirectional = False,   # bidirectional RNN
     layer_norm = False,      # apply layer normalization on the output of each layer
-    highway_bias = 0,        # initial bias of highway gate (<= 0)
-    rescale = True,          # whether to use scaling correction
+    highway_bias = -2,        # initial bias of highway gate (<= 0)
 )
 rnn.cuda()
 

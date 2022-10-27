@@ -2,6 +2,7 @@ import pytest
 import torch
 import sru
 
+
 @pytest.mark.parametrize(
     "cuda",
     [

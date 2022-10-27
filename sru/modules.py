@@ -289,6 +289,8 @@ class SRUCell(nn.Module):
                                                     self.has_skip_term,
                                                     scale_val, mask_c, mask_pad)
 
+
+
     def compute_UV(self,
                    input: Tensor,
                    c0: Optional[Tensor],

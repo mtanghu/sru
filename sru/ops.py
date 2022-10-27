@@ -6,6 +6,7 @@ import warnings
 import torch
 from torch import Tensor
 from torch.utils.cpp_extension import load
+from .cuda_functional import elementwise_recurrence_forward
 
 from .cuda_functional import elementwise_recurrence_forward
 
@@ -156,7 +157,6 @@ def elementwise_recurrence_gpu(U: Tensor,
             mask_pad
         )
 
-
 @torch.jit.unused
 def elementwise_recurrence_naive(U: Tensor,
                                  x: Tensor,
@@ -263,3 +263,4 @@ def elementwise_recurrence_naive(U: Tensor,
         c_final.append(c_t.view(batch, d))
 
     return h.view(length, batch, -1), torch.stack(c_final, dim=1).view(batch, -1)  # type: ignore
+
