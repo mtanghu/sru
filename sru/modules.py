@@ -759,7 +759,7 @@ class SRUppAttention(nn.Module):
             ))
         self.reset_parameters()
         
-        self.rotary_emb = RotaryEmbedding(dim = 32)
+        self.rotary_emb = RotaryEmbedding(dim = proj_dim // num_heads // 2)
 
     def reset_parameters(self):
         nn.init.xavier_uniform_(self.linear1.weight)
@@ -823,7 +823,7 @@ class SRUppAttention(nn.Module):
         q = q.contiguous().view(tgt_len, -1, head_dim).transpose(0, 1)
         k = k.contiguous().view(src_len, -1, head_dim).transpose(0, 1)
         v = v.contiguous().view(src_len, -1, head_dim).transpose(0, 1)
-
+        
         q = self.rotary_emb.rotate_queries_or_keys(q)
         k = self.rotary_emb.rotate_queries_or_keys(k)
 
