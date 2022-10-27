@@ -8,6 +8,8 @@ from torch import Tensor
 from torch.utils.cpp_extension import load
 from .cuda_functional import elementwise_recurrence_forward
 
+from .cuda_functional import elementwise_recurrence_forward
+
 # JIT compilation of elementwise fwd operator (CPU version)
 cpu_source = os.path.join(os.path.dirname(__file__), "csrc", "sru_cpu_impl.cpp")
 load(
@@ -109,38 +111,51 @@ def elementwise_recurrence_gpu(U: Tensor,
                                mask_pad: Optional[Tensor] = None,
                                amp_recurrence_fp16: bool = False) -> List[Tensor]:
     """Elementwise forward operation of SRU on GPU.
-
     """
     from .cuda_functional import ElementwiseRecurrence
 
-    if amp_recurrence_fp16 and U.dtype == torch.float16:
-        cast = torch.Tensor.half
+    in_autocast = getattr(torch, 'is_autocast_enabled', lambda: False)()
+    if in_autocast:
+        with torch.cuda.amp.autocast(enabled=False):
+            cast = torch.Tensor.half if amp_recurrence_fp16 else torch.Tensor.float
+
+            U = cast(U)
+            x = cast(x)
+            weight_c = cast(weight_c)
+            bias = cast(bias)
+            c_init = cast(c_init)
+            scale_x = cast(scale_x) if scale_x is not None else scale_x
+            dropout_mask_c = cast(dropout_mask_c) if dropout_mask_c is not None else dropout_mask_c
+
+            return ElementwiseRecurrence.apply(
+                U,
+                x,
+                weight_c,
+                bias,
+                c_init,
+                activation_type,
+                hidden_size,
+                bidirectional,
+                has_skip_term,
+                scale_x,
+                dropout_mask_c,
+                mask_pad
+            )
     else:
-        cast = torch.Tensor.float
-
-    U = cast(U)
-    x = cast(x)
-    weight_c = cast(weight_c)
-    bias = cast(bias)
-    c_init = cast(c_init)
-    scale_x = cast(scale_x) if scale_x is not None else scale_x
-    dropout_mask_c = cast(dropout_mask_c) if dropout_mask_c is not None else dropout_mask_c
-
-    return ElementwiseRecurrence.apply(
-        U,
-        x,
-        weight_c,
-        bias,
-        c_init,
-        activation_type,
-        hidden_size,
-        bidirectional,
-        has_skip_term,
-        scale_x,
-        dropout_mask_c,
-        mask_pad
-    )
-
+        return ElementwiseRecurrence.apply(
+            U,
+            x,
+            weight_c,
+            bias,
+            c_init,
+            activation_type,
+            hidden_size,
+            bidirectional,
+            has_skip_term,
+            scale_x,
+            dropout_mask_c,
+            mask_pad
+        )
 
 @torch.jit.unused
 def elementwise_recurrence_naive(U: Tensor,
