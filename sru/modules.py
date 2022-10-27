@@ -289,8 +289,6 @@ class SRUCell(nn.Module):
                                                     self.has_skip_term,
                                                     scale_val, mask_c, mask_pad)
 
-
-
     def compute_UV(self,
                    input: Tensor,
                    c0: Optional[Tensor],
@@ -761,7 +759,7 @@ class SRUppAttention(nn.Module):
             ))
         self.reset_parameters()
         
-        self.rotary_emb = RotaryEmbedding(dim = proj_dim // num_heads // 2)
+        self.rotary_emb = RotaryEmbedding(dim = proj_features // num_heads // 2)
 
     def reset_parameters(self):
         nn.init.xavier_uniform_(self.linear1.weight)
